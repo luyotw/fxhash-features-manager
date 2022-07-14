@@ -3,7 +3,10 @@
 This is a handy tool to manage the features while developing p5js generative art projects for fxhash.xyz with [fxhash-webpack-boilerplate](https://github.com/fxhash/fxhash-webpack-boilerplate)
 
 ## Setup
-Just copy and paste the classes if the `src.js` file to the `sketch.js`. (I know it not a modern implementation, and I'll do some improvement for this while I get more familiar to setting up a js module, or someone contributes his/her commits)
+Download `src.js` and load it in `<head>`:
+```
+<script src="src.js" type="text/javascript"></script>
+```
 
 ## Usage of class `FxhashFeature`: 
 
@@ -22,6 +25,8 @@ Then call `.getValue()` whenever you want, it will call `fxrand()` behind to get
 ```
 let featureValue = featureA.getValue()
 ```
+You can also use `FxhashFeaturesManager.getFeatureValue()` to get features' values without obtaining multiple `FxhashFeature` objects, which is the recommended pratice (see below).
+
 > Note: if the sum of the probabilities is not equal to 1, it will trigger a warning with `console.log()`
 
 ### Debug
@@ -43,42 +48,67 @@ Debugging: "Feature name" is "Option Name 2".
 > If `.debug()` is applied, it  will NOT trigger the checking for the sum of the probabilities
 
 ## Usage of class `FxhashFeaturesManger`:
-Add the features to the instance of `FxhashFeaturesManger`, and simply call `.output()` to dump the features for `window.$fxhashFeatures`:
+
+### Add features to the manager
+Add the features to the instance of `FxhashFeaturesManger`:
 ```
 let featuresManager.output = new FxhashFeaturesManger()
 featuresManager.output
   .addFeature(featureA)
   .addFeature(featureB)
+```
 
+### Get a feature's value
+Call `getFeatureValue()` to get specific feature's value by its name:
+```
+let featureValue = featuresManager.getFeatureValue('Feature name')
+```
+
+### Dump features information for publishing on fxhash
+simply call `.output()` to dump the features for `window.$fxhashFeatures`
+```
 window.$fxhashFeatures = featuresManager.output.output()
 ```
-> It will trigger a warning if the input of `.addFeature()` is not an instance of `FxhashFeature`
+> It will trigger a `TypeError` if the input of `.addFeature()` is not an instance of `FxhashFeature`
 
 ## Example
 
 ```
-// set treeColor feature
-let treeColor = new FxhashFeature('Tree Color')
-treeColor
-  .addOption('Black', '#202020', 0.2)
-  .addOption('Brown', '#3B3028', 0.2)
-  .addOption('Gray', '#5F636A', 0.2)
-  .addOption('Blue Sapphire', '#19647E', 0.2)
-  .addOption('Dark Green', '#607466', 0.2)
+// set all the features in this function, and return a manager object
+function getFeaturesManager() {
+  // set treeColor feature
+  let treeColor = new FxhashFeature('Tree Color')
+  treeColor
+    .addOption('Black', '#202020', 0.2)
+    .addOption('Brown', '#3B3028', 0.2)
+    .addOption('Gray', '#5F636A', 0.2)
+    .addOption('Blue Sapphire', '#19647E', 0.2)
+    .addOption('Dark Green', '#607466', 0.2)
 
-// set treeNumber feature
-let treeNumber = new FxhashFeature('Tree Number')
-for (let i = 0; i < 10; i++) {
+  // set treeNumber feature
+  let treeNumber = new FxhashFeature('Tree Number')
+  for (let i = 0; i < 10; i++) {
     treeNumber.addOption(i, i, 0.1)
+  }
+    
+  // add above features to the manager
+  let featuresManager = new FxhashFeaturesManger()
+  featuresManager
+    .addFeature(treeColor)
+    .addFeature(treeNumber)
+
+  return featuresManager
 }
 
-// add above features to the manager
-let featuresManager = new FxhashFeaturesManger()
-featuresManager
-  .addFeature(treeColor)
-  .addFeature(treeNumber)
+// obtain the manager object
+let fm = getFeaturesManager()
 
-window.$fxhashFeatures = featuresManager.output()
+// get features' values in you code whenever you need
+let color = fm.getFeatureValue('Tree Color')
+let number = fm.getFeatureValue('Tree Number')
+
+// dump features information for publishing on fxhash.xyz
+window.$fxhashFeatures = fm.output()
 ```
 The output may be like:
 ```
