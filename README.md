@@ -3,9 +3,9 @@
 This is a handy tool to manage the features while developing p5js generative art projects for fxhash.xyz with [fxhash-webpack-boilerplate](https://github.com/fxhash/fxhash-webpack-boilerplate)
 
 ## Setup
-Download `src.js` and load it in `<head>`:
+Download `src.js` as `ffm.src.js` or other names, then load it in `<head>`:
 ```
-<script src="src.js" type="text/javascript"></script>
+<script src="ffm.src.js" type="text/javascript"></script>
 ```
 
 ## Usage of class `FxhashFeature`: 
