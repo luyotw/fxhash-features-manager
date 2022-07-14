@@ -1,17 +1,24 @@
-class FxhashFeaturesManger {
+class FxhashFeaturesManager {
   constructor() {
-    this.features = []
+    this.features = {}
   }
 
   addFeature(feature) {
     if (!(feature instanceof FxhashFeature)) {
-      this.log('Warning: parameter #1 of addFeature() needs to be an instance of "FxhashFeature"')
+      throw new TypeError('parameter #1 of addFeature() needs to be an instance of "Feature"')
     }
-    this.features.push(feature)
+    this.features[feature.name] = feature
     return this
   }
+  
+  getFeatureValue(name) {
+    if (undefined === this.features[name]) {
+      throw new Error('feature "' + name + '" not found.')
+    }
+    return this.features[name].getValue()
+  }
 
-  format() {
+  output() {
     let output = {}
     for (let i in this.features) {
       let feature = this.features[i]
@@ -19,7 +26,7 @@ class FxhashFeaturesManger {
     }
     return output
   }
-  
+
   log(msg) {
     console.log(msg)
   }
@@ -40,10 +47,14 @@ class FxhashFeature {
     }
     return this
   }
-  
+
   debug(text) {
-    this.picked = this.options[text]
-    this.log('Debugging: "' + this.name + '" is "' + this.getText() + '".')
+    try {
+      this.picked = this.options[text]
+      this.log('Debugging: "' + this.name + '" is "' + this.getText() + '"')
+    } catch (e) {
+      this.log('Debugging: "' + this.name + '" has no option named "' + text + '"')
+    }
   }
 
   pickOne() {
@@ -77,7 +88,7 @@ class FxhashFeature {
   }
 
   random() {
-    return fxrand()
+    return utils.fxr()
   }
 
   getName() {
@@ -97,7 +108,7 @@ class FxhashFeature {
     }
     return this.picked['text']
   }
-  
+
   log(msg) {
     console.log(msg)
   }
