@@ -67,7 +67,7 @@ let featureValue = featuresManager.getFeatureValue('Feature name')
 ### Dump features information for publishing on fxhash
 simply call `.output()` to dump the features for `window.$fxhashFeatures`
 ```
-window.$fxhashFeatures = featuresManager.output.output()
+window.$fxhashFeatures = featuresManager.output()
 ```
 > It will trigger a `TypeError` if the input of `.addFeature()` is not an instance of `FxhashFeature`
 
