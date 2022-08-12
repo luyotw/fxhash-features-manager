@@ -11,6 +11,13 @@ class FxhashFeaturesManager {
     return this
   }
   
+  getFeatureText(name) {
+    if (undefined === this.features[name]) {
+      throw new Error('feature "' + name + '" not found.')
+    }
+    return this.features[name].getText()
+  }
+
   getFeatureValue(name) {
     if (undefined === this.features[name]) {
       throw new Error('feature "' + name + '" not found.')
@@ -50,7 +57,7 @@ class FxhashFeature {
 
   debug(text) {
     try {
-      this.picked = this.options[text]
+      this.debugging = this.options[text]
       this.log('Debugging: "' + this.name + '" is "' + this.getText() + '"')
     } catch (e) {
       this.log('Debugging: "' + this.name + '" has no option named "' + text + '"')
@@ -67,7 +74,14 @@ class FxhashFeature {
       this.log('Warning: the sum of the rates of all options of "' + this.name + '" is not 100%')
     }
 
+    // run once even while debugging
     let rand = this.random()
+
+    if (undefined !== this.debugging) {
+      this.picked = this.debugging
+      return
+    }
+
     let cumm = 0
     for (let text in this.options) {
       cumm += this.options[text]['rate']
@@ -113,4 +127,3 @@ class FxhashFeature {
     console.log(msg)
   }
 }
-
