@@ -10,7 +10,7 @@ class FxhashFeaturesManager {
     this.features[feature.name] = feature
     return this
   }
-  
+
   getFeatureText(name) {
     if (undefined === this.features[name]) {
       throw new Error('feature "' + name + '" not found.')
@@ -56,10 +56,10 @@ class FxhashFeature {
   }
 
   debug(text) {
-    try {
-      this.debugging = this.options[text]
+    this.debugging = this.options[text]
+    if (this.debugging !== undefined) {
       this.log('Debugging: "' + this.name + '" is "' + this.getText() + '"')
-    } catch (e) {
+    } else {
       this.log('Debugging: "' + this.name + '" has no option named "' + text + '"')
     }
   }
@@ -67,11 +67,6 @@ class FxhashFeature {
   pickOne() {
     if (this.picked !== null) {
       return
-    }
-
-    // check if the sum of the rates is 100%
-    if (!this.checkRates()) {
-      this.log('Warning: the sum of the rates of all options of "' + this.name + '" is not 100%')
     }
 
     // run once even while debugging
@@ -82,6 +77,13 @@ class FxhashFeature {
       return
     }
 
+    this.assignRates()
+
+    // check if the sum of the rates is 100%
+    if (!this.checkRates()) {
+      this.log('Warning: the sum of the rates of all options of "' + this.name + '" is not 100%')
+    }
+
     let cumm = 0
     for (let text in this.options) {
       cumm += this.options[text]['rate']
@@ -89,6 +91,37 @@ class FxhashFeature {
         this.picked = this.options[text]
         return
       }
+    }
+  }
+
+  assignRates() {
+    let quota = 1
+    let noRateIndices = []
+
+    // minus assigned rate from 1
+    for (let i in this.options) {
+      if (undefined !== this.options[i]['rate']) {
+        quota -= this.options[i]['rate']
+      } else {
+        noRateIndices.push(i)
+      }
+    }
+
+    // all options have been assigned own rates
+    if (0 === noRateIndices.length) {
+      return
+    }
+
+    // no less than 0
+    quota = max(quota, 0)
+
+    // calculate average of the left quota
+    const rate = quota / noRateIndices.length
+
+    // assign the average number for the unassigned options
+    for (let j in noRateIndices) {
+      let i = noRateIndices[j]
+      this.options[i]['rate'] = rate
     }
   }
 
